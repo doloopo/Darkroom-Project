@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="zh-cmn-Hans">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" />
+    <meta name="renderer" content="webkit" />
+    <meta name="force-rendering" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <!--meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+
+    <!-- MDUI CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/css/mdui.min.css"
+        integrity="sha384-cLRrMq39HOZdvE0j6yBojO4+1PrHfB7a9l5qLcmRm/fiWXYY+CndJPmyu5FV/9Tw" crossorigin="anonymous" />
+    <title>DRP</title>
+
+    <script src="https://cdn.bootcss.com/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+
+    <script>
+        function encryptByDES(message, key) {
+            var keyHex = CryptoJS.enc.Utf8.parse(key);
+            var encrypted = CryptoJS.DES.encrypt(message, keyHex, {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            return encrypted.ciphertext.toString();
+        }
+
+        function decryptByDES(ciphertext, key) {
+            var keyHex = CryptoJS.enc.Utf8.parse(key);
+            var decrypted = CryptoJS.DES.decrypt({
+                ciphertext: CryptoJS.enc.Hex.parse(ciphertext)
+            }, keyHex, {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            var result_value = decrypted.toString(CryptoJS.enc.Utf8);
+            return result_value;
+        }
+    </script>
+
+    <script>
+        var foretext = "";
+        var textkey = "";
+        var fillword = "";
+
+        function Start() {
+            textkey = document.getElementById("address-box").value;
+            var dum = String(Math.sin(parseInt(textkey))).substring(5, 10);
+
+            switch (dum) {
+                case "17016":
+                    foretext = decryptByDES("1423e6b1de71bbecce0796e9c2a3538bee1af48d606187411d7ca0cd367d9f13829a7f314e80b0f7", textkey);
+                    fillword = "0fd21143cfb0e172b3412ba372c2ea70f4aa9003bbc6d3a835cdd49b19d98ad64e4782eb1bb5727a";
+                    break;
+                case "89201":
+                    foretext = decryptByDES("44283ead5327b4e9d53e3a696ad6af1802798c771855693fa4758f1326bc8ffb4d82f6ca25068a9f", textkey);
+                    fillword = "98506edefc6f64526795bd26b2cac1dd68015c29c5f5e3ff5b8c8029b368456cf191a3c67f979287";
+                    break;
+                default:
+                    mdui.snackbar("不存在的暗室位址");
+                    return;
+            }
+
+            document.getElementById("boxframe").src = foretext;
+
+            document.getElementById("chatter").style.display = "block";
+            setInterval("RefreshMessages();", 1000);
+        }
+
+        function RefreshMessages() {
+            var box = document.getElementById("messages");
+            var msg = "";
+            var cnodes = document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].childNodes;
+            for (var i = 0; i < cnodes.length; i++) {
+                msg += cnodes[i].innerHTML;
+            }
+            var msgsplit = msg.split("|");
+
+            box.innerHTML = "";
+            for (var i = 0; i < msgsplit.length; i++) {
+                box.innerHTML += decryptByDES(msgsplit[i], textkey) + "<br />";
+            }
+        }
+
+        function SendMessage() {
+            var person = document.getElementById("person").value;
+            var msgcontent = document.getElementById("msgcontent").value;
+            var msg = "";
+            var cnodes = document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].childNodes;
+            for (var i = 0; i < cnodes.length; i++) {
+                msg += cnodes[i].innerHTML;
+                if (i != 0) {
+                    document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].removeChild(
+                        document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].childNodes[i]);
+                }
+            }
+            var msgsplit = msg.split("|");
+
+            msg += "|" + encryptByDES(person + "：" + msgcontent, textkey);
+            document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].childNodes[0].innerHTML = msg;
+
+            document.getElementById("msgcontent").value="";
+            RefreshMessages();
+        }
+
+        function ClearMessage() {
+            var cnodes = document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].childNodes;
+            for (var i = 0; i < cnodes.length; i++) {
+                if (i != 0) {
+                    document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].removeChild(
+                        document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].childNodes[i]);
+                }
+            }
+            document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].childNodes[0].innerHTML = fillword;
+            RefreshMessages();
+        }
+    </script>
+
+    <style>
+        hr {
+            border: none;
+            border-top: 2px dotted #b7b8b8
+        }
+
+        a {
+            color: #69f0ae;
+            text-decoration: underline dotted;
+        }
+
+        .small-space {
+            height: 20px;
+        }
+
+        #homepagecontainer {
+            width: calc(100% - 20px);
+            max-width: 500px;
+            text-align: center;
+
+            top: 50%;
+            left: 50%;
+            position: absolute;
+            transform: translate(-50%, -60%);
+        }
+
+        #mainicon {
+            font-size: 200px;
+        }
+
+        #address {
+            text-align: left;
+        }
+
+        #boxframe {
+            display: none;
+        }
+
+        #chatter {
+            z-index: 50;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        #chatcontainer {
+            padding: 20px;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        #messages {
+            font-size: 16px;
+            line-height: 24px;
+
+            max-width: 100%;
+            word-break: break-all;
+        }
+
+        #message-div {
+            height: calc(100vh - 300px);
+            overflow: scroll;
+        }
+
+        #send {
+            margin-top: 5px;
+        }
+
+        #send-div {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body class="mdui-color-blue-grey-900 mdui-theme-primary-green mdui-theme-accent-green mdui-theme-layout-dark">
+    <div id="homepagecontainer">
+        <i id="mainicon" class="mdui-icon material-icons mdui-text-color-green-accent">&#xe62f;</i></span>
+        <h1 class="mdui-text-color-green-accent">Darkroom Project 暗室计划</h1>
+
+        <div id="address" class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">. . . 暗室位址 . . .</label>
+            <input id="address-box" class="mdui-textfield-input" autocomplete=off />
+        </div>
+
+        <div class="small-space"></div>
+        <button class="mdui-btn mdui-color-theme-accent mdui-ripple" onclick="Start();">走你</button>
+    </div>
+
+    <iframe id="boxframe" disablewebsecurity></iframe>
+
+    <div id="chatter" class="mdui-color-blue-grey-900" style="display:none">
+        <div id="chatcontainer">
+            <span class="mdui-text-color-white-secondary">若要退出，请<a href="index.html">刷新</a>（F5）本页面。</span>
+            <hr />
+
+            <div class="small-space"></div>
+            <div id="message-div">
+                <span id="messages">正在与 DRP 消息中心取得联系。</span>
+            </div>
+
+            <div id="typing-area">
+                <div class="mdui-textfield">
+                    <i class="mdui-icon material-icons">account_circle</i>
+                    <input id="person" class="mdui-textfield-input" type="text" value="过客" autocomplete="off" />
+                </div>
+                <div class="mdui-textfield">
+                    <i class="mdui-icon material-icons">textsms</i>
+                    <textarea id="msgcontent" class="mdui-textfield-input" rows=2></textarea>
+                </div>
+
+                <div id="send-div">
+                    <button id="clear" class="mdui-btn mdui-color-theme-accent mdui-ripple"
+                        onclick="ClearMessage();">清空</button>
+                    <button id="send" class="mdui-btn mdui-color-theme-accent mdui-ripple"
+                        onclick="SendMessage(); document.getElementById('message-div').scrollTop = document.getElementById('message-div').scrollHeight;">发送</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MDUI JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/js/mdui.min.js"
+        integrity="sha384-gCMZcshYKOGRX9r6wbDrvF+TcCCswSHFucUzUPwka+Gr+uHgjlYvkABr95TCOz3A"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

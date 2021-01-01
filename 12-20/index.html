@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-cmn-Hans">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" />
+    <meta name="renderer" content="webkit" />
+    <meta name="force-rendering" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- MDUI CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/css/mdui.min.css"
+        integrity="sha384-cLRrMq39HOZdvE0j6yBojO4+1PrHfB7a9l5qLcmRm/fiWXYY+CndJPmyu5FV/9Tw" crossorigin="anonymous" />
+    <title>DRP</title>
+
+    <script src="https://cdn.bootcss.com/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+    <script>
+        function encryptByDES(message, key) {
+            var keyHex = CryptoJS.enc.Utf8.parse(key);
+            var encrypted = CryptoJS.DES.encrypt(message, keyHex, {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            return encrypted.ciphertext.toString();
+        }
+
+        function decryptByDES(ciphertext, key) {
+            var keyHex = CryptoJS.enc.Utf8.parse(key);
+            var decrypted = CryptoJS.DES.decrypt({
+                ciphertext: CryptoJS.enc.Hex.parse(ciphertext)
+            }, keyHex, {
+                mode: CryptoJS.mode.ECB,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            var result_value = decrypted.toString(CryptoJS.enc.Utf8);
+            return result_value;
+        }
+    </script>
+
+    <script>
+        var foretext = "";
+
+        function Start() {
+            var textkey = document.getElementById("address-box").value;
+            var dum = String(Math.sin(parseInt(textkey))).substring(5, 10);
+
+            switch (dum) {
+                case "17016":
+                    foretext = decryptByDES("0508d85c0000e14960d8e795e7c7dc2f3b4fbde53691e1f7", textkey);
+                    break;
+                default:
+                    mdui.snackbar("不存在的暗室位址");
+            }
+
+            document.getElementById("boxframe").src = foretext;
+        }
+    </script>
+
+    <style>
+        hr {
+            border: none;
+            border-top: 2px dotted #b7b8b8
+        }
+
+        a {
+            color: #69f0ae;
+            text-decoration: underline dotted;
+        }
+
+        .small-space {
+            height: 20px;
+        }
+
+        #homepagecontainer {
+            width: calc(100% - 20px);
+            max-width: 500px;
+            text-align: center;
+
+            top: 50%;
+            left: 50%;
+            position: absolute;
+            transform: translate(-50%, -60%);
+        }
+
+        #mainicon {
+            font-size: 200px;
+        }
+
+        #address {
+            text-align: left;
+        }
+
+        #boxframe {
+            display: none;
+        }
+
+        #chatter {
+            z-index: 50;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        #chatcontainer {
+            padding: 20px;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        #messages {
+            font-size: 16px;
+            line-height: 24px;
+
+            max-width: 100%;
+            word-break: break-all;
+        }
+
+        #message-div {
+            height: calc(100vh - 300px);
+            overflow: scroll;
+        }
+
+        #send {
+            margin-top: 5px;
+        }
+
+        #send-div {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body class="mdui-color-blue-grey-900 mdui-theme-primary-green mdui-theme-accent-green mdui-theme-layout-dark">
+    <div id="homepagecontainer">
+        <i id="mainicon" class="mdui-icon material-icons mdui-text-color-green-accent">&#xe62f;</i></span>
+        <h1 class="mdui-text-color-green-accent">Darkroom Project 暗室计划</h1>
+
+        <div id="address" class="mdui-textfield mdui-textfield-floating-label">
+            <label class="mdui-textfield-label">. . . 暗室位址 . . .</label>
+            <input id="address-box" class="mdui-textfield-input" autocomplete=off />
+        </div>
+
+        <div class="small-space"></div>
+        <button class="mdui-btn mdui-color-theme-accent mdui-ripple" onclick="Start();">走你</button>
+    </div>
+
+    <iframe id="boxframe"></iframe>
+
+    <div id="chatter" class="mdui-color-blue-grey-900">
+        <div id="chatcontainer">
+            <span class="mdui-text-color-white-secondary">若要退出，请<a href="/">刷新</a>（F5）本页面。</span>
+            <hr />
+
+            <div class="small-space"></div>
+            <div id="message-div">
+                <span id="messages">正在与 DRP 消息中心取得联系。</span>
+            </div>
+
+            <div id="typing-area">
+                <div class="mdui-textfield">
+                    <i class="mdui-icon material-icons">account_circle</i>
+                    <input class="mdui-textfield-input" type="text" value="过客" autocomplete="off" />
+                </div>
+                <div class="mdui-textfield">
+                    <i class="mdui-icon material-icons">textsms</i>
+                    <textarea class="mdui-textfield-input" rows=2></textarea>
+                </div>
+
+                <div id="send-div">
+                    <button id="send" class="mdui-btn mdui-color-theme-accent mdui-ripple"
+                        onclick="document.getElementById('messages').innerHTML += 'hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello\r\n'; document.getElementById('message-div').scrollTop = document.getElementById('message-div').scrollHeight;">发送</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MDUI JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/js/mdui.min.js"
+        integrity="sha384-gCMZcshYKOGRX9r6wbDrvF+TcCCswSHFucUzUPwka+Gr+uHgjlYvkABr95TCOz3A"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
