@@ -1,32 +1,72 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="zh-cmn-Hans">
 
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" />
+    <meta name="renderer" content="webkit" />
+    <meta name="force-rendering" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <!-- MDUI CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/mdui@1.0.2/dist/css/mdui.min.css" />
+    <title>Alpha 1</title>
+
     <script src="node_modules/crypto-js/crypto-js.js"></script>
     <script src="custom_AES.js"></script>
-    <script type="module">
+    <script>
         var msgFilter = /^msg::(.+?)::msg$/gm;
+        var userKey = "unknown";
+        var channelName = "whathappytest";
+        var userNickName = "test";
+        var TranslateInterval = 1000;
 
-        function FullTranslate() {
-            textelms = document.getElementsByClassName("text");
-            for (var i = 0; i < textes.length; i++) {
-                item = textelms[i]; 
+        function FullTranslate(textelms) {
+            // textelms = document.getElementsByClassName("text");
+            for (var i = 0; i < textelms.length; i++) {
+                item = textelms[i];
 
                 currentMatch = msgFilter.exec(item.textContent.trim());
                 if (currentMatch != null) {
                     // Concrete Handler
-                    item.textContent = "hhh" + cur[1];
+                    item.textContent = "[密文]" + decrypt(currentMatch[1], userKey);
                 }
             }
         }
-
-        console.log(encrypt("something","ggg"));
-
     </script>
 </head>
 
 <body>
-    <h1>hee</h1>
+    <iframe id="mainframe" width=600 height=400 src="https://hack.chat/"></iframe>
+    <script>
+        mainFrame = document.getElementById("mainframe");
+
+        // Load to page
+        mainFrame.src = "https://hack.chat/?" + channelName;
+
+        // Nickname Setter
+        mainFrame.contentWindow.prompt = function (arg1, arg2) { return userNickName }
+
+        // Translator Setter
+        setInterval(function () {
+            FullTranslate(mainFrame.contentWindow.document.getElementsByClassName("text"));
+        }, TranslateInterval);
+
+        // Must be set onload
+        mainFrame.onload = function () {
+            // Encryption Setter
+            var chatInput = mainFrame.contentWindow.document.getElementById("chatinput");
+            chatInput.addEventListener('keyup', function () {
+                if (chatInput.value.endsWith("。")) {
+                    chatInput.value = "msg::" + encrypt(chatInput.value, userKey) + "::msg";
+                }
+            }, false);
+        }
+
+    </script>
+
+    <!-- MDUI JavaScript -->
+    <script src="https://unpkg.com/mdui@1.0.2/dist/js/mdui.min.js"></script>
 </body>
 
 </html>
