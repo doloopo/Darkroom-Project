@@ -1,0 +1,16 @@
+{
+  "name": "test2_electron_enviro",
+  "version": "1.0.0",
+  "description": "test2_electron_enviro",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "test2",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^22.0.0"
+  }
+}

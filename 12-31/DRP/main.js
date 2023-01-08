@@ -1,11 +1,16 @@
 const { app, BrowserWindow } = require('electron')
 
-function createWindow () {
+function createWindow() {
+  const electron = require('electron')
+  /*获取electron窗体的菜单栏*/
+  const Menu = electron.Menu
+  /*隐藏electron创听的菜单栏*/
+  Menu.setApplicationMenu(null)
   const win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true,
+      nodeIntegration: false,
       webSecurity: false
     }
   })

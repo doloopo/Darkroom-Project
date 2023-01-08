@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <h1>hola</h1>
+
+        <iframe id="mainframe" width=600 height=400 src="nothttps://hack.chat/?hellotest"></iframe>
+        <script>
+            document.getElementById("mainframe").contentWindow.prompt=function(arg1, arg2){return "mynickname"}
+        </script>
+        <button onclick="alert(prompt('abc','def'))"></button>
+        <textarea id="test">instead</textarea>
+
+        <script>
+            var testarea = document.getElementById("test")
+            testarea.onkeyup = function() {if(testarea.value == "yeah" ){testarea.value="horray"}}
+        </script>
+    </body>
+</html>

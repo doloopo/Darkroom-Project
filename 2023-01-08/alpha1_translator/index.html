@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="node_modules/crypto-js/crypto-js.js"></script>
+    <script src="custom_AES.js"></script>
+    <script type="module">
+        var msgFilter = /^msg::(.+?)::msg$/gm;
+
+        function FullTranslate() {
+            textelms = document.getElementsByClassName("text");
+            for (var i = 0; i < textes.length; i++) {
+                item = textelms[i]; 
+
+                currentMatch = msgFilter.exec(item.textContent.trim());
+                if (currentMatch != null) {
+                    // Concrete Handler
+                    item.textContent = "hhh" + cur[1];
+                }
+            }
+        }
+
+        console.log(encrypt("something","ggg"));
+
+    </script>
+</head>
+
+<body>
+    <h1>hee</h1>
+</body>
+
+</html>

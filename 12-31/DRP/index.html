@@ -15,12 +15,13 @@
     <title>DRP</title>
 
     <script src="https://cdn.bootcss.com/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 
     <script>
         function encryptByDES(message, key) {
             var keyHex = CryptoJS.enc.Utf8.parse(key);
             var encrypted = CryptoJS.DES.encrypt(message, keyHex, {
-                mode: CryptoJS.mode.ECB,
+                mode: CryptoJS.mode.ECB ,
                 padding: CryptoJS.pad.Pkcs7
             });
             return encrypted.ciphertext.toString();
@@ -43,11 +44,31 @@
         var foretext = "";
         var textkey = "";
         var fillword = "";
+        var RoomListRawLink = "https://gitee.com/consolor/consolor/raw/master/DRPRaw.txt";
+        var RoomListContent = new Array();
+        var IsAtBottomOfScroll = 0;
+
+        $.get(RoomListRawLink, function(data){RoomListContent = data.split("\n");});
 
         function Start() {
             textkey = document.getElementById("address-box").value;
             var dum = String(Math.sin(parseInt(textkey))).substring(5, 10);
 
+            var IsFound = 0;
+            for (var i = 0; i < RoomListContent.length; i++) {
+                var x = RoomListContent[i];
+                if (x.split(" ")[0] == dum) {
+                    foretext = decryptByDES(x.split(" ")[1], textkey);
+                    fillword = x.split(' ')[2];
+                    IsFound = 1;
+                }
+            }
+            if (IsFound == 0) {
+                mdui.snackbar("不存在的暗室位址");
+                return;
+            }
+
+            /* 原来的判断函数
             switch (dum) {
                 case "17016":
                     foretext = decryptByDES("1423e6b1de71bbecce0796e9c2a3538bee1af48d606187411d7ca0cd367d9f13829a7f314e80b0f7", textkey);
@@ -61,6 +82,7 @@
                     mdui.snackbar("不存在的暗室位址");
                     return;
             }
+            */
 
             document.getElementById("boxframe").src = foretext;
 
@@ -69,6 +91,10 @@
         }
 
         function RefreshMessages() {
+            if (document.getElementById('message-div').scrollTop == document.getElementById('message-div').scrollHeight) IsAtBottomOfScroll = 1;
+            else IsAtBottomOfScroll = 0;
+            alert(document.getElementById('message-div').scrollTop + ";" + document.getElementById('message-div').scrollHeight + ";" + IsAtBottomOfScroll);
+
             var box = document.getElementById("messages");
             var msg = "";
             var cnodes = document.getElementById("boxframe").contentWindow.document.getElementsByClassName("ql-long-43627082")[0].childNodes;
@@ -81,6 +107,9 @@
             for (var i = 0; i < msgsplit.length; i++) {
                 box.innerHTML += decryptByDES(msgsplit[i], textkey) + "<br />";
             }
+
+            if (IsAtBottomOfScroll = 1 && document.getElementById('message-div').scrollTop != document.getElementById('message-div').scrollHeight)
+            document.getElementById('message-div').scrollTop = document.getElementById('message-div').scrollHeight;
         }
 
         function SendMessage() {
@@ -209,7 +238,7 @@
 
     <div id="chatter" class="mdui-color-blue-grey-900" style="display:none">
         <div id="chatcontainer">
-            <span class="mdui-text-color-white-secondary">若要退出，请<a href="index.html">刷新</a>（F5）本页面。</span>
+            <span class="mdui-text-color-white-secondary">若要返回主界面，请<a href="index.html">点这里</a></span>
             <hr />
 
             <div class="small-space"></div>
@@ -231,7 +260,7 @@
                     <button id="clear" class="mdui-btn mdui-color-theme-accent mdui-ripple"
                         onclick="ClearMessage();">清空</button>
                     <button id="send" class="mdui-btn mdui-color-theme-accent mdui-ripple"
-                        onclick="SendMessage(); document.getElementById('message-div').scrollTop = document.getElementById('message-div').scrollHeight;">发送</button>
+                        onclick="SendMessage();">发送</button>
                 </div>
             </div>
 
