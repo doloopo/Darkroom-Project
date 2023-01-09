@@ -21,18 +21,27 @@
             padding: 0;
         }
 
-        html,body {
+        html,
+        body {
             height: 100%;
             width: 100%;
+            
         }
 
-        body {
+
+        #mainframe {
+            height: 0;
+            width: 0;
+            opacity: 0%;
             overflow: hidden;
         }
 
-        #mainframe{
-            height: 100%;
-            width: 100%
+        #mainPage {
+            text-align: center;
+        }
+
+        #mainIcon {
+            font-size: 60px;
         }
     </style>
 
@@ -44,8 +53,8 @@
         var userKey = "unknown";
         var channelName = "whathappytest";
         var userNickName = "test";
+        var hostPrefix = "https://hack.chat/?";
 
-        const hostPrefix = "https://hack.chat/?";
         const TranslateInterval = 500;
         const nickNameSetMax = 1000;
         const userinputDefault = "testchannel001\r\nxiaoming\r\npassword";
@@ -74,7 +83,7 @@
 
                 var deleterMatch = delFilter.exec(item.textContent);
                 if (deleterMatch != null && deleterMatch[1] != userNickName) {
-                    DeleteMessage(item); 
+                    DeleteMessage(item);
                 }
             }
         }
@@ -89,49 +98,130 @@
         function initialPage(frame) {
             var userInput;
 
-            mdui.prompt("请按以下格式，输入登录信息：<b>频道名、昵称、密钥</b>，每行一个。",
-                "确认登录信息", function (value) {
-                    userInput = value;
-                    slices = userInput.split("\n");
-                    //mdui.alert(slices);
-                    if (slices.length < 3) { mdui.alert("格式不符，请手动刷新页面重输。"); return -1; }
-                    userKey = slices[2];
-                    channelName = slices[0];
-                    userNickName = slices[1];
-                    var additions = slices[4];
+            hostPrefix = document.getElementById("host-prefix").value;
+            userKey = document.getElementById("password").value;
+            channelName = document.getElementById("channel").value;
+            userNickName = document.getElementById("nickname").value;
 
-                    frame.src = hostPrefix + channelName;
+            frame.src = hostPrefix + channelName;
+
+            var nickNameSetCount = 0;
+            var id = setInterval(function () {
+                mainFrame.contentWindow.prompt = function (arg1, arg2) { return userNickName };
+                nickNameSetCount++;
+                if (nickNameSetCount > nickNameSetMax) {
+                    clearInterval(id);
+                }
+            }, 100);
 
 
-                    // Translator and Deleter Setter
-                    setInterval(function () {
-                        textClass = mainFrame.contentWindow.document.getElementsByClassName("text");
-                        for (var i = 0; i < textClass.length; i++) {
-                            FullTranslate(textClass[i].childNodes);
-                        }
-                    }, TranslateInterval);
+            // Translator and Deleter Setter
+            setInterval(function () {
+                textClass = mainFrame.contentWindow.document.getElementsByClassName("text");
+                for (var i = 0; i < textClass.length; i++) {
+                    FullTranslate(textClass[i].childNodes);
+                }
+            }, TranslateInterval);
 
-                    // Must be set onload
-                    mainFrame.onload = function () {
-                        // Encryption Setter
-                        var chatInput = mainFrame.contentWindow.document.getElementById("chatinput");
-                        chatInput.addEventListener('keyup', function () {
-                            if (chatInput.value.endsWith("。")) {
-                                chatInput.value = msgPrefix + encrypt(chatInput.value, userKey) + msgSuffix;
-                            }
-                        }, false);
+            // Must be set onload
+            mainFrame.onload = function () {
+                // Encryption Setter
+                var chatInput = mainFrame.contentWindow.document.getElementById("chatinput");
+                chatInput.addEventListener('keyup', function () {
+                    if (chatInput.value.endsWith("。")) {
+                        chatInput.value = msgPrefix + encrypt(chatInput.value, userKey) + msgSuffix;
                     }
+                }, false);
+            }
 
-                }, function () { location.reload(); }, {
-                confirmText: "登录", cancelText: "重置", history: false,
-                modal: true, closeOnEsc: false, closeOnCancel: false, type: "textarea", defaultValue: userinputDefault
-            });
+            // UI Setter
+            mainFrame.style = "height: calc(100% - 10px); width: calc(100% - 5px); opacity: 100%; overflow: hidden";
+            document.getElementById("main").style="display: none";
         }
     </script>
 </head>
 
-<body>
+<body class="mdui-theme-layout-dark mdui-theme-primary-lime mdui-theme-accent-lime">
     <iframe id="mainframe" src="./back.html"></iframe>
+
+    <div id="main">
+        <div id="mainPage" class="mdui-container">
+            <div class="mdui-row">
+                <div class="mdui-typo-display-4-opacity">
+                    <i id="mainIcon" class="mdui-icon material-icons">&#xe62f;</i>
+                </div>
+            </div>
+            <div class="mdui-row">
+                <div class="mdui-typo-display-1-opacity">暗室计划</div>
+            </div>
+            <div class="mdui-row">
+                <div class="mdui-typo-headline-opacity">Darkroom Project</div>
+            </div>
+            <div class="mdui-row">
+                <div class="mdui-typo-title-opacity mdui-text-color-lime">Alpha 1</div>
+            </div>
+        </div>
+    
+        <div class="mdui-typo">
+            <hr />
+        </div>
+        <div style="height:20px"></div>
+        <div class="mdui-container">
+            <div class="mdui-row">
+                <div class="mdui-col-xs-1"></div>
+                <div class="mdui-col-xs-10">
+                    <p>请提供你的登录信息。</p>
+                </div>
+                <div class="mdui-col-xs-1"></div>
+            </div>
+            <div class="mdui-row">
+                <div class="mdui-col-xs-1"></div>
+                <div class="mdui-col-xs-5">
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <label class="mdui-textfield-label">主机前缀（不必修改）</label>
+                        <input id="host-prefix" class="mdui-textfield-input" value="https://hack.chat/?" type="text"
+                            required />
+                        <div class="mdui-textfield-error">主机名不能为空</div>
+                    </div>
+                </div>
+                <div class="mdui-col-xs-5">
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <label class="mdui-textfield-label">频道</label>
+                        <input id="channel" class="mdui-textfield-input" value="testchannel001" type="text" required />
+                        <div class="mdui-textfield-error">频道名不能为空</div>
+                    </div>
+                </div>
+                <div class="mdui-col-xs-1"></div>
+            </div>
+            <div class="mdui-row">
+                <div class="mdui-col-xs-1"></div>
+                <div class="mdui-col-xs-5">
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <label class="mdui-textfield-label">昵称</label>
+                        <input id="nickname" class="mdui-textfield-input" type="text" pattern="^[\w_]{1,24}$" value="xiaoming" required />
+                        <div class="mdui-textfield-error">用户名不合法</div>
+                        <div class="mdui-textfield-helper">至多 24 位的字母、数字和下划线的组合</div>
+                    </div>
+                </div>
+                <div class="mdui-col-xs-5">
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <label class="mdui-textfield-label">密钥</label>
+                        <input id="password" class="mdui-textfield-input" value="123456" type="text" required />
+                        <div class="mdui-textfield-error">用123456也比空着强。</div>
+                    </div>
+                </div>
+                <div class="mdui-col-xs-1"></div>
+            </div>
+        </div>
+    
+        <div style="height:40px"></div>
+        <div>
+            <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple"
+                onclick="initialPage(document.getElementById('mainframe'))">确定</button>
+        </div>
+    
+    </div>
+
 
     <!-- MDUI JavaScript -->
     <script src="./mdui/js/mdui.min.js"></script>
@@ -141,19 +231,11 @@
 
         // Load to page
         // mainFrame.src = "https://hack.chat/?" + channelName;
-        initialPage(mainFrame);
+        // initialPage(mainFrame);
 
         // Nickname Setter
         // mainFrame.contentWindow.prompt = function (arg1, arg2) { return userNickName };
         // Nickname Setter Plus
-        var nickNameSetCount = 0;
-        var id = setInterval(function () {
-            mainFrame.contentWindow.prompt = function (arg1, arg2) { return userNickName };
-            nickNameSetCount++;
-            if(nickNameSetCount > nickNameSetMax) {
-                clearInterval(id);
-            }
-        }, 100);
 
     </script>
 </body>

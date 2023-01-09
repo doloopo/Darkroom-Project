@@ -1,17 +1,20 @@
 {
-  "name": "alpha1_translator",
+  "name": "drp_alpha1_translator",
   "version": "1.0.0",
-  "description": "",
+  "description": "DRP",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",  "dist": "electron-builder"
   },
+  "build": {  "appId": "DRP",  "mac": {    "category": "im"  }},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^22.0.0"
+    "electron": "^22.0.0",
+    "electron-builder": "^23.6.0"
   },
   "dependencies": {
     "crypto-js": "^4.1.1"
