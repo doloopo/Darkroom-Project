@@ -9,64 +9,153 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
     <!-- MDUI CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/mdui@1.0.2/dist/css/mdui.min.css" />
+    <link rel="stylesheet" href="./mdui/css/mdui.min.css" />
+
+    <style>
+        code {
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        #mainframe{
+            height: 100%;
+            width: 100%
+        }
+    </style>
+
     <title>Alpha 1</title>
 
-    <script src="node_modules/crypto-js/crypto-js.js"></script>
-    <script src="custom_AES.js"></script>
+    <script src="./node_modules/crypto-js/crypto-js.js"></script>
+    <script src="./custom_AES.js"></script>
     <script>
-        var msgFilter = /^msg::(.+?)::msg$/gm;
         var userKey = "unknown";
         var channelName = "whathappytest";
         var userNickName = "test";
-        var TranslateInterval = 1000;
+
+        const hostPrefix = "https://hack.chat/?";
+        const TranslateInterval = 500;
+        const nickNameSetMax = 1000;
+        const userinputDefault = "testchannel001\r\nxiaoming\r\npassword";
+
+        const delFilter = /\[\(del-(.+?)\)(.+?)\]/gm
+        const msgFilter = /\[\(msg\)(.+?)\]/gm;
+        const msgPrefix = "[(msg)";
+        const msgSuffix = "]";
+        const decPrefix = "[(密文)";
+        const decSuffix = "]";
 
         function FullTranslate(textelms) {
             // textelms = document.getElementsByClassName("text");
             for (var i = 0; i < textelms.length; i++) {
                 item = textelms[i];
 
-                currentMatch = msgFilter.exec(item.textContent.trim());
+                var currentMatch = msgFilter.exec(item.textContent);
                 if (currentMatch != null) {
                     // Concrete Handler
-                    item.textContent = "[密文]" + decrypt(currentMatch[1], userKey);
+                    // item.textContent = "[密文：" + decrypt(currentMatch[1], userKey) + "]";
+                    for (var j = 1; j <= currentMatch.length - 1; j++) {
+                        item.textContent = item.textContent.replace(msgPrefix + currentMatch[j] + msgSuffix,
+                            decPrefix + decrypt(currentMatch[j], userKey) + decSuffix);
+                    }
+                }
+
+                var deleterMatch = delFilter.exec(item.textContent);
+                if (deleterMatch != null && deleterMatch[1] != userNickName) {
+                    DeleteMessage(item); 
                 }
             }
+        }
+
+        function DeleteMessage(child) {
+            var reparentNode = child.parentNode.parentNode;
+            var rereparentNode = reparentNode.parentNode;
+
+            rereparentNode.removeChild(reparentNode);
+        }
+
+        function initialPage(frame) {
+            var userInput;
+
+            mdui.prompt("请按以下格式，输入登录信息：<b>频道名、昵称、密钥</b>，每行一个。",
+                "确认登录信息", function (value) {
+                    userInput = value;
+                    slices = userInput.split("\n");
+                    //mdui.alert(slices);
+                    if (slices.length < 3) { mdui.alert("格式不符，请手动刷新页面重输。"); return -1; }
+                    userKey = slices[2];
+                    channelName = slices[0];
+                    userNickName = slices[1];
+                    var additions = slices[4];
+
+                    frame.src = hostPrefix + channelName;
+
+
+                    // Translator and Deleter Setter
+                    setInterval(function () {
+                        textClass = mainFrame.contentWindow.document.getElementsByClassName("text");
+                        for (var i = 0; i < textClass.length; i++) {
+                            FullTranslate(textClass[i].childNodes);
+                        }
+                    }, TranslateInterval);
+
+                    // Must be set onload
+                    mainFrame.onload = function () {
+                        // Encryption Setter
+                        var chatInput = mainFrame.contentWindow.document.getElementById("chatinput");
+                        chatInput.addEventListener('keyup', function () {
+                            if (chatInput.value.endsWith("。")) {
+                                chatInput.value = msgPrefix + encrypt(chatInput.value, userKey) + msgSuffix;
+                            }
+                        }, false);
+                    }
+
+                }, function () { location.reload(); }, {
+                confirmText: "登录", cancelText: "重置", history: false,
+                modal: true, closeOnEsc: false, closeOnCancel: false, type: "textarea", defaultValue: userinputDefault
+            });
         }
     </script>
 </head>
 
 <body>
-    <iframe id="mainframe" width=600 height=400 src="https://hack.chat/"></iframe>
+    <iframe id="mainframe" src="./back.html"></iframe>
+
+    <!-- MDUI JavaScript -->
+    <script src="./mdui/js/mdui.min.js"></script>
+
     <script>
         mainFrame = document.getElementById("mainframe");
 
         // Load to page
-        mainFrame.src = "https://hack.chat/?" + channelName;
+        // mainFrame.src = "https://hack.chat/?" + channelName;
+        initialPage(mainFrame);
 
         // Nickname Setter
-        mainFrame.contentWindow.prompt = function (arg1, arg2) { return userNickName }
-
-        // Translator Setter
-        setInterval(function () {
-            FullTranslate(mainFrame.contentWindow.document.getElementsByClassName("text"));
-        }, TranslateInterval);
-
-        // Must be set onload
-        mainFrame.onload = function () {
-            // Encryption Setter
-            var chatInput = mainFrame.contentWindow.document.getElementById("chatinput");
-            chatInput.addEventListener('keyup', function () {
-                if (chatInput.value.endsWith("。")) {
-                    chatInput.value = "msg::" + encrypt(chatInput.value, userKey) + "::msg";
-                }
-            }, false);
-        }
+        // mainFrame.contentWindow.prompt = function (arg1, arg2) { return userNickName };
+        // Nickname Setter Plus
+        var nickNameSetCount = 0;
+        var id = setInterval(function () {
+            mainFrame.contentWindow.prompt = function (arg1, arg2) { return userNickName };
+            nickNameSetCount++;
+            if(nickNameSetCount > nickNameSetMax) {
+                clearInterval(id);
+            }
+        }, 100);
 
     </script>
-
-    <!-- MDUI JavaScript -->
-    <script src="https://unpkg.com/mdui@1.0.2/dist/js/mdui.min.js"></script>
 </body>
 
 </html>

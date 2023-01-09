@@ -5,7 +5,57 @@ const { app ,BrowserWindow} = require('electron');
 //  path模块: node 的内置模块，用于拼接路径
 const path = require('path');
 // 1.初始化应用之后，会触发监听ready 事件
-app.on('ready',ny_createWindow)
+app.on('ready',function(){ny_createWindow(); createMenu();})
+function createMenu(){
+  const {app, Menu} = require('electron');
+  const template = [
+    {
+      role: 'Reload'
+    }
+  ];
+
+  if (process.platform === 'darwin') {
+    template.unshift({
+      label: app.getName(),
+      submenu: [
+        {role: 'about'},
+        {type: 'separator'},
+        {role: 'services', submenu: []},
+        {type: 'separator'},
+        {role: 'hide'},
+        {role: 'hideothers'},
+        {role: 'unhide'},
+        {type: 'separator'},
+        {role: 'quit'}
+      ]
+    });
+
+    // Edit menu
+    template[1].submenu.push(
+        {type: 'separator'},
+        {
+          label: 'Speech',
+          submenu: [
+            {role: 'startspeaking'},
+            {role: 'stopspeaking'}
+          ]
+        }
+    );
+
+    // Window menu
+    template[3].submenu = [
+      {role: 'close'},
+      {role: 'minimize'},
+      {role: 'zoom'},
+      {type: 'separator'},
+      {role: 'front'}
+    ];
+  }
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
 app.commandLine.appendSwitch('disable-site-isolation-trials')
 let win;
 // 创建窗口
