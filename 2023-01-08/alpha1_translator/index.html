@@ -25,7 +25,7 @@
         body {
             height: 100%;
             width: 100%;
-            
+
         }
 
 
@@ -54,17 +54,46 @@
         var channelName = "whathappytest";
         var userNickName = "test";
         var hostPrefix = "https://hack.chat/?";
+        var pingDest = "https://atom-bold-energy.glitch.me"
+        var pingInterval = 270000;
 
         const TranslateInterval = 500;
         const nickNameSetMax = 1000;
-        const userinputDefault = "testchannel001\r\nxiaoming\r\npassword";
+        // const userinputDefault = "testchannel001\r\nxiaoming\r\npassword";
 
-        const delFilter = /\[\(del-(.+?)\)(.+?)\]/gm
-        const msgFilter = /\[\(msg\)(.+?)\]/gm;
-        const msgPrefix = "[(msg)";
-        const msgSuffix = "]";
-        const decPrefix = "[(密文)";
-        const decSuffix = "]";
+        const delFilter = /!!\(del-(.+?)\)(.+?)!!/gm
+        const msgFilter = /!!\(msg\)(.+?)!!/gm;
+        const msgPrefix = "!!(msg)";
+        const msgSuffix = "!!";
+        const decPrefix = "!!(密文)";
+        const decSuffix = "!!";
+
+        // Pinger for server
+        function ping(ip) {
+            var img = new Image();
+            var start = new Date().getTime();
+            img.src = "http://" + ip + "?t=" + start;
+            var flag = false;  //无法访问
+            img.onload = function () {
+                flag = true;
+                console.log('ok');
+            };
+            img.onerror = function () {
+                flag = true;
+                console.log('ok');
+            };
+            var timer = setTimeout(function () {
+                if (!flag) {    //如果真的无法访问
+                    flag = false;
+                    console.log('failed');
+                }
+            }, 1500);
+        }
+        ping(pingDest);
+        setInterval(function () {
+            ping(pingDest);
+        }, pingInterval);
+
 
         function FullTranslate(textelms) {
             // textelms = document.getElementsByClassName("text");
@@ -96,12 +125,14 @@
         }
 
         function initialPage(frame) {
-            var userInput;
-
             hostPrefix = document.getElementById("host-prefix").value;
             userKey = document.getElementById("password").value;
             channelName = document.getElementById("channel").value;
             userNickName = document.getElementById("nickname").value;
+            // Other parameters
+            otherPara = document.getElementById("special").value; 
+            pingDest = otherPara.split(";")[0];
+            pingInterval = otherPara.split(";")[1];
 
             frame.src = hostPrefix + channelName;
 
@@ -136,7 +167,7 @@
 
             // UI Setter
             mainFrame.style = "height: calc(100% - 10px); width: calc(100% - 5px); opacity: 100%; overflow: hidden";
-            document.getElementById("main").style="display: none";
+            document.getElementById("main").style = "display: none";
         }
     </script>
 </head>
@@ -161,7 +192,7 @@
                 <div class="mdui-typo-title-opacity mdui-text-color-lime">Alpha 1</div>
             </div>
         </div>
-    
+
         <div class="mdui-typo">
             <hr />
         </div>
@@ -198,7 +229,8 @@
                 <div class="mdui-col-xs-5">
                     <div class="mdui-textfield mdui-textfield-floating-label">
                         <label class="mdui-textfield-label">昵称</label>
-                        <input id="nickname" class="mdui-textfield-input" type="text" pattern="^[\w_]{1,24}$" value="xiaoming" required />
+                        <input id="nickname" class="mdui-textfield-input" type="text" pattern="^[\w_]{1,24}$"
+                            value="xiaoming" required />
                         <div class="mdui-textfield-error">用户名不合法</div>
                         <div class="mdui-textfield-helper">至多 24 位的字母、数字和下划线的组合</div>
                     </div>
@@ -212,14 +244,26 @@
                 </div>
                 <div class="mdui-col-xs-1"></div>
             </div>
+            <div class="mdui-row">
+                <div class="mdui-col-xs-1"></div>
+                <div class="mdui-col-xs-10">
+                    <div class="mdui-textfield mdui-textfield-floating-label">
+                        <label class="mdui-textfield-label">其它参数（不必修改）</label>
+                        <input id="special" class="mdui-textfield-input"
+                            value="https://atom-bold-energy.glitch.me;270000" type="text" required />
+                        <div class="mdui-textfield-error">不必修改。开发用途。</div>
+                    </div>
+                </div>
+                <div class="mdui-col-xs-1"></div>
+            </div>
         </div>
-    
+
         <div style="height:40px"></div>
         <div>
             <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple"
                 onclick="initialPage(document.getElementById('mainframe'))">确定</button>
         </div>
-    
+
     </div>
 
 

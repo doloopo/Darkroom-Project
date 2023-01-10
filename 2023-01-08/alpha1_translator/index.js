@@ -80,7 +80,7 @@ function ny_createWindow(){
   // mac 系统：需要拼接 file 协议
   // path.join('file://',__dirname,'./index.html')
   // 1.3 调试工具
-  // win.webContents.openDevTools(); // webContents: 控制和渲染页面的
+  win.webContents.openDevTools(); // webContents: 控制和渲染页面的
   // 1.4 关闭窗口， 关闭窗口前想做的事
   win.on('close',function(){
     win = null;  // 关闭窗口
