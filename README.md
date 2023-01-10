@@ -14,7 +14,7 @@ A project that had be better named Parasite Project that builds an IM, in variou
 
 ## TODO
 
-[ ] Rewrite Translator. (It would break multiline messages. )
+[ ] Rewrite Translator. (The translateText() behaves strangely. It would return the origin text for the 1st, 3rd, 5th and etc time you use it, and the processed text for the 2nd, 4th and etc time. I don't know, but I'm totally shocked. )
 
 [ ] Rewrite Pinger. (It won't wake the bot up currently. )
 

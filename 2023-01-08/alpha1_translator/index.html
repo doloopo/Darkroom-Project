@@ -62,11 +62,11 @@
         // const userinputDefault = "testchannel001\r\nxiaoming\r\npassword";
 
         const delFilter = /!!\(del-(.+?)\)(.+?)!!/gm
-        const msgFilter = /!!\(msg\)(.+?)!!/gm;
-        const msgPrefix = "!!(msg)";
-        const msgSuffix = "!!";
-        const decPrefix = "!!(密文)";
-        const decSuffix = "!!";
+        const msgFilter = /<<\(msg\)(.+?)>>/gm;
+        const msgPrefix = "<<(msg)";
+        const msgSuffix = ">>";
+        const decPrefix = "<<(密文)";
+        const decSuffix = ">>";
 
         // Pinger for server
         function ping(ip) {
@@ -95,33 +95,56 @@
         }, pingInterval);
 
 
+        function translateText(text) {
+            var s = text;
+            var currentMatch = msgFilter.exec(s);
+            if (currentMatch != null) {
+                // Concrete Handler
+                // item.textContent = "[密文：" + decrypt(currentMatch[1], userKey) + "]";
+                for (var j = 1; j <= currentMatch.length - 1; j++) {
+                    s = s.replace(msgPrefix + currentMatch[j] + msgSuffix,
+                        decPrefix + decrypt(currentMatch[j], userKey) + decSuffix);
+                }
+            }
+            return s;
+        }
+
         function FullTranslate(textelms) {
             // textelms = document.getElementsByClassName("text");
             for (var i = 0; i < textelms.length; i++) {
-                item = textelms[i];
 
-                var currentMatch = msgFilter.exec(item.textContent);
-                if (currentMatch != null) {
-                    // Concrete Handler
-                    // item.textContent = "[密文：" + decrypt(currentMatch[1], userKey) + "]";
-                    for (var j = 1; j <= currentMatch.length - 1; j++) {
-                        item.textContent = item.textContent.replace(msgPrefix + currentMatch[j] + msgSuffix,
-                            decPrefix + decrypt(currentMatch[j], userKey) + decSuffix);
+
+                /*
+                // contains words and <br>s
+                criticalData = textelms[i].childNodes[0].childNodes;
+                for (var k = 0; k < criticalData.length; k++) {
+                    item = criticalData[k];
+
+                    var currentMatch = msgFilter.exec(item.textContent);
+                    if (currentMatch != null) {
+                        // Concrete Handler
+                        // item.textContent = "[密文：" + decrypt(currentMatch[1], userKey) + "]";
+                        for (var j = 1; j <= currentMatch.length - 1; j++) {
+                            item.textContent = item.textContent.replace(msgPrefix + currentMatch[j] + msgSuffix,
+                                decPrefix + decrypt(currentMatch[j], userKey) + decSuffix);
+                        }
                     }
                 }
+                */
 
-                var deleterMatch = delFilter.exec(item.textContent);
+                var deleterMatch = delFilter.exec(textelms[i].textContent);
                 if (deleterMatch != null && deleterMatch[1] != userNickName) {
                     DeleteMessage(item);
                 }
+
             }
         }
 
         function DeleteMessage(child) {
-            var reparentNode = child.parentNode.parentNode;
-            var rereparentNode = reparentNode.parentNode;
+            var rereparentNode = child.parentNode.parentNode.parentNode;
+            var rerereparentNode = rereparentNode.parentNode;
 
-            rereparentNode.removeChild(reparentNode);
+            rerereparentNode.removeChild(rereparentNode);
         }
 
         function initialPage(frame) {
@@ -130,7 +153,7 @@
             channelName = document.getElementById("channel").value;
             userNickName = document.getElementById("nickname").value;
             // Other parameters
-            otherPara = document.getElementById("special").value; 
+            otherPara = document.getElementById("special").value;
             pingDest = otherPara.split(";")[0];
             pingInterval = otherPara.split(";")[1];
 
@@ -149,9 +172,7 @@
             // Translator and Deleter Setter
             setInterval(function () {
                 textClass = mainFrame.contentWindow.document.getElementsByClassName("text");
-                for (var i = 0; i < textClass.length; i++) {
-                    FullTranslate(textClass[i].childNodes);
-                }
+                FullTranslate(textClass);
             }, TranslateInterval);
 
             // Must be set onload
