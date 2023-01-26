@@ -1,6 +1,6 @@
 # Darkroom-Project
 
- It may be better named Parasite Project. The Project aims to build an IM without paying for a server, in whatsoever way. It focuses on taking advantage of Electron, in which the cross-origin policy can be disabled, so that certain changes on other websites, such as Shared Documents or another IM platform, could be made. 
+ It may be better named Parasite Project. The Project aims to build an IM without paying for a server, in a whatsoever way. It focuses on taking advantage of Electron, in which the cross-origin policy can be disabled, so that certain changes on other websites, such as Shared Documents or another IM platform, could be made. 
 
 ## Update Log
 
@@ -22,4 +22,4 @@
 
 ## DEVELOPMENT SUSPENDED
 
-The development is suspended, until a better solution emerges out. 
+The development is suspended until a better solution emerges. 
