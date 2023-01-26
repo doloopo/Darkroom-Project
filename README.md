@@ -1,21 +1,25 @@
-# Darkroom-Project 暗室计划
+# Darkroom-Project
 
-我觉得不如叫“寄生虫计划”？不自建服务器，用各种花式方法实现即时通讯（并加密！）的探索。包括：共享文档、Hack.chat 魔改等。目前的核心思路是利用 electron 可以通过修改配置来跨域操作其它网页的特点。
+ It may be better named Parasite Project. The Project aims to build an IM without paying for a server, in whatsoever way. It focuses on taking advantage of Electron, in which the cross-origin policy can be disabled, so that certain changes on other websites, such as Shared Documents or another IM platform, could be made. 
 
-A project that had be better named Parasite Project that builds an IM, in various ways, without actually paying for a server. 
+## Update Log
 
-## Updates 更新日志
+[2020-12-20] Attempt #1: Modify Shimo Shared Document webpage in browser to 'communitcate' in real time. Failed. 
 
-2020-12-20 探索失败，因为浏览器上无法跨域，完全无法。
+[2020-12-31] Attempt #2: Do the same as in #1, but with Electron. Using the feature `app.commandLine.appendSwitch('disable-site-isolation-trials')`. 
 
-2020-12-31 用 Electron 实现了跨域。关键在于，`app.commandLine.appendSwitch('disable-site-isolation-trials')`。
+[2023-01-09] Hack.chat is a great solution for modifying: It's free, well-structed, and 3rd party tools can be easily applied. 
 
-2023-01-09 Hack.chat is a best solution for modifying: It's free, well-structed and easy to add 3rd party tools. 
+## ~~TODO~~
 
-## TODO
+~~[ ] Rewrite Translator. (The translateText() behaves strangely. It would return the origin text for the 1st, 3rd, 5th and etc time you use it, and the processed text for the 2nd, 4th and etc time. I don't know, but I'm totally shocked. )~~
 
-[ ] Rewrite Translator. (The translateText() behaves strangely. It would return the origin text for the 1st, 3rd, 5th and etc time you use it, and the processed text for the 2nd, 4th and etc time. I don't know, but I'm totally shocked. )
+~~[ ] Fix message (del) format. ~~
 
-[ ] Rewrite Pinger. (It won't wake the bot up currently. )
+~~[ ] Rewrite Pinger. (It won't wake the bot up currently. )~~
 
-[ ] Cross-platform Builds. 
+~~[ ] Cross-platform Builds. ~~
+
+## DEVELOPMENT SUSPENDED
+
+The development is suspended, until a better solution emerges out. 
